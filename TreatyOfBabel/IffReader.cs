@@ -6,7 +6,7 @@ using System.IO;
 
 namespace TreatyOfBabel
 {
-    public class IffReader : IDisposable
+    public sealed class IffReader : IDisposable
     {
         private BinaryReader reader;
 
@@ -81,9 +81,26 @@ namespace TreatyOfBabel
             return new string(chars);
         }
 
+        public uint ReadUint(uint offset)
+        {
+            this.reader.BaseStream.Position = offset;
+            return this.ReadUint();
+        }
+
         public uint ReadUint()
         {
             return this.reader.ReadBigEndianUint32();
+        }
+
+        public byte[] ReadBytes(uint offset, uint length)
+        {
+            this.reader.BaseStream.Position = offset;
+            return this.ReadBytes(length);
+        }
+
+        public byte[] ReadBytes(uint length)
+        {
+            return this.reader.ReadBytes((int)length);
         }
     }
 
