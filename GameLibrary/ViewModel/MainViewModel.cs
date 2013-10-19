@@ -22,7 +22,7 @@ namespace GameLibrary.ViewModel
     public class MainViewModel : ViewModelBaseEx, IObserver<Game>
     {
         private readonly IDataService dataService;
-        private ObservableCollection<Game> games;
+        private ObservableCollection<GameViewModel> games;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -30,8 +30,8 @@ namespace GameLibrary.ViewModel
         public MainViewModel(IDataService dataService)
         {
             this.dataService = dataService;
-            this.games = new ObservableCollection<Game>();
-            this.Games = new ReadOnlyObservableCollection<Game>(this.games);
+            this.games = new ObservableCollection<GameViewModel>();
+            this.Games = new ReadOnlyObservableCollection<GameViewModel>(this.games);
 
             this.RootPath = "???";  // Get root path from service?
 
@@ -47,13 +47,13 @@ namespace GameLibrary.ViewModel
             private set { this.Set(ref this.rootPath, value); }
         }
 
-        public ReadOnlyObservableCollection<Game> Games { get; private set; }
+        public ReadOnlyObservableCollection<GameViewModel> Games { get; private set; }
 
         #region IObserver<Game> Members
 
         public void OnNext(Game game)
         {
-            this.games.Add(game);
+            this.games.Add(new GameViewModel(game));
         }
 
         public void OnCompleted()

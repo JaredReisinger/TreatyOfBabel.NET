@@ -86,10 +86,14 @@ namespace TreatyOfBabel
                         Console.WriteLine("Unexpected FORM subtype!");
                     }
 
-                    foreach (var chunk in reader.GetChunks(info.ContentOffset + 4))
+                    // ignore sounds!
+                    if (formType != "AIFF")
                     {
-                        var node = new IffInfoNode(info, chunk);
-                        this.HandleIffInfoNode(node, reader, depth + 1);
+                        foreach (var chunk in reader.GetChunks(info.ContentOffset + 4))
+                        {
+                            var node = new IffInfoNode(info, chunk);
+                            this.HandleIffInfoNode(node, reader, depth + 1);
+                        }
                     }
                     break;
 
