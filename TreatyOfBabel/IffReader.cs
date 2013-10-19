@@ -32,6 +32,7 @@ namespace TreatyOfBabel
                 }
 
                 this.disposed = true;
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -49,7 +50,13 @@ namespace TreatyOfBabel
 
             while (!string.IsNullOrEmpty(typeId))
             {
-                // TODO: offsets must be even?  Add 1 if needed?
+                // IFF chunks *must* start on even byte boundaries...
+                // Is this always true, or just for FORM?
+                if ((currentOffset & 0x1) == 1)
+                {
+                    ++currentOffset;
+                }
+
                 this.reader.BaseStream.Position = currentOffset;
                 typeId = this.ReadTypeId();
 
@@ -101,36 +108,6 @@ namespace TreatyOfBabel
         public byte[] ReadBytes(uint length)
         {
             return this.reader.ReadBytes((int)length);
-        }
-    }
-
-    public class IffInfo
-    {
-        public IffInfo(uint offset, string typeId, uint length)
-        {
-            this.Offset = offset;
-            this.TypeId = typeId;
-            this.Length = length;
-        }
-
-        public uint Offset { get; private set; }
-        public string TypeId { get; private set; }  // add sub-type, for FORM?
-        public uint Length { get; private set; }
-        public uint ContentOffset { get { return this.Offset + 4 + 4; } }
-    }
-
-    public static class BinaryReaderExtensions
-    {
-        public static uint ReadBigEndianUint32(this BinaryReader reader)
-        {
-            var bytes = reader.ReadBytes(4);
-
-            if (bytes == null || bytes.Length != 4)
-            {
-                throw new InvalidDataException("Expected to read at least 4 bytes!");
-            }
-
-            return ((uint)bytes[0] << 24) | ((uint)bytes[1] << 16) | ((uint)bytes[2] << 8) | ((uint)bytes[3]);
         }
     }
 }

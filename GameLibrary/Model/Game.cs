@@ -19,13 +19,11 @@ namespace GameLibrary.Model
             this.Author = "An Author";
             this.FullPath = filename;
             this.RelativePath = filename.Substring(rootPath.Length + 1);
-            this.Image = @"C:\TEMP\Placeholder.jpg";
         }
 
         public string Title { get; private set; }
         public string Author { get; private set; }
         public string FullPath { get; private set; }
         public string RelativePath { get; private set; }
-        public string Image { get; private set; }
     }
 }

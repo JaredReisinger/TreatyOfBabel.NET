@@ -8,7 +8,7 @@
         Height="500"
         Title="Text Adventure Game Library"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -81,15 +81,18 @@
                    TextWrapping="Wrap"
                    Text="{Binding RootPath}" />
 
-        <StackPanel DockPanel.Dock="Right"
-                    Width="300"
-                    Margin="10"
-                    DataContext="{Binding SelectedItem, ElementName=GameList}">
-            <Image Source="{Binding Image}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Left" />
-            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" />
-            <TextBlock Text="{Binding Author}" />
-            <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
-        </StackPanel>
+        <ScrollViewer DockPanel.Dock="Right" Width="300" VerticalScrollBarVisibility="Auto">
+            <StackPanel DataContext="{Binding SelectedItem, ElementName=GameList}" Margin="10">
+                <Image Source="{Binding Image}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" />
+                <TextBlock Text="{Binding Headline}" FontSize="12" />
+                <TextBlock Text="{Binding Author}" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
+                <TextBlock Text="{Binding Genre}" />
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,20,0,0" />
+            </StackPanel>
+        </ScrollViewer>
+
 
         <ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0">
             <ListBox.ItemTemplate>
