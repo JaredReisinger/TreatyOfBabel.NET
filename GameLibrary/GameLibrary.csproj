@@ -97,6 +97,7 @@
     <Compile Include="Model\DataService.cs" />
     <Compile Include="Model\Game.cs" />
     <Compile Include="Model\IDataService.cs" />
+    <Compile Include="ViewModel\Converters.cs" />
     <Compile Include="ViewModel\GameViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBaseEx.cs" />
@@ -118,6 +119,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Skins\MainSkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\Menus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

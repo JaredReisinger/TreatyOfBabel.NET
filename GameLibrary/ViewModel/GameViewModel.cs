@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using TreatyOfBabel;
 
 namespace GameLibrary.ViewModel
@@ -21,6 +23,8 @@ namespace GameLibrary.ViewModel
 
         public GameViewModel(Model.Game game)
         {
+            this.PlayCommand = new RelayCommand(this.Play);
+
             this.Path = game.RelativePath;
             this.file = new FileInfo(game.FullPath);
 
@@ -136,6 +140,14 @@ namespace GameLibrary.ViewModel
         {
             get { return this.thumbImage; }
             private set { this.Set(ref this.thumbImage, value); }
+        }
+
+        public RelayCommand PlayCommand { get; private set; }
+
+        private void Play()
+        {
+            // Launch it!
+            Process.Start(this.file.FullName);
         }
     }
 }

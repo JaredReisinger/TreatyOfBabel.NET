@@ -3,11 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:GameLibrary.ViewModel"
         mc:Ignorable="d"
+        SnapsToDevicePixels="True"
         Height="700"
         Width="900"
+        MinWidth="600"
+        MinHeight="400"
         Title="Text Adventure Game Library"
-        SnapsToDevicePixels="True"
         FocusManager.FocusedElement="{Binding ElementName=GameList}"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
 
@@ -16,12 +19,20 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
                 <ResourceDictionary Source="Skins/Expander.xaml" />
+                <ResourceDictionary Source="Skins/Menus.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <vm:MultiStringConverter x:Key="MultiStringConverter" />
+            <vm:StringVisibilityConverter x:Key="CollapsedWhenNull" DefaultValue="Visible" MatchedValue="Collapsed" />
+            <vm:StringBoolConverter x:Key="TrueWhenMatch" DefaultValue="False" MatchedValue="True" />
+            <vm:StringBoolConverter x:Key="FalseWhenMatch" DefaultValue="True" MatchedValue="False" />
+            <vm:DirectionBoolConverter x:Key="TrueWhenAscending" DefaultValue="False" MatchedValue="True" ConverterParameter="Ascending" />
+            <vm:DirectionBoolConverter x:Key="TrueWhenDescending" DefaultValue="False" MatchedValue="True" ConverterParameter="Descending" />
         </ResourceDictionary>
 
     </Window.Resources>
 
-    <DockPanel x:Name="LayoutRoot">
+    <DockPanel x:Name="LayoutRoot" TextElement.FontFamily="Segoe UI" Background="#FFF0F0F0">
         <Menu DockPanel.Dock="Top" IsMainMenu="True">
             <MenuItem Header="File">
                 <MenuItem Command="ApplicationCommands.New" />
@@ -60,7 +71,7 @@
             </MenuItem>
         </Menu>
 
-        <StatusBar DockPanel.Dock="Bottom">
+        <StatusBar DockPanel.Dock="Bottom" Background="Transparent">
             <TextBlock Text="status..." />
             <Separator />
             <TextBlock Text="status..." />
@@ -79,33 +90,115 @@
             </ToolBar>
         </ToolBarTray>-->
 
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#f0f0f0">
-            <TextBlock Text="Directory:"
-                   Padding="5"
-                   TextWrapping="Wrap" />
-            <TextBlock Text="{Binding RootPath}"
-                   Padding="5"
-                   FontWeight="DemiBold"
-                   TextWrapping="Wrap" />
-        </StackPanel>
+        <Grid DockPanel.Dock="Right" Width="300" DataContext="{Binding SelectedItem, ElementName=GameList}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <ScrollViewer DockPanel.Dock="Right" Width="300" VerticalScrollBarVisibility="Visible" Background="#f0f0f0">
-            <StackPanel DataContext="{Binding SelectedItem, ElementName=GameList}" Margin="10,0">
-                <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
-                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Headline}" FontSize="12" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Author}" Margin="0,10,0,0" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,20,0,20" />
-                <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
+            <ScrollViewer VerticalScrollBarVisibility="Visible">
+                <StackPanel Margin="10,0">
+                    <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Headline}" FontSize="12" TextWrapping="Wrap" Visibility="{Binding Headline,Converter={StaticResource CollapsedWhenNull}}" />
+                        <TextBlock Text="{Binding Author}" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding Author,Converter={StaticResource CollapsedWhenNull}}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,20" Visibility="{Binding Description,Converter={StaticResource CollapsedWhenNull}}" />
+                    <StackPanel Margin="0,0,0,0">
+                        <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" Visibility="{Binding Genre,Converter={StaticResource CollapsedWhenNull}}" />
+                        <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                <Button HorizontalAlignment="Center" Padding="30,5" Command="{Binding PlayCommand}">Play!</Button>
             </StackPanel>
-        </ScrollViewer>
+        </Grid>
 
         <ListView x:Name="GameList"
                   ItemsSource="{Binding GamesView.View}"
                   BorderThickness="0"
                   Foreground="Black"
+                  SelectedIndex="0"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Arrange by">
+                        <MenuItem Header="Folder" Style="{StaticResource RadioMenuItem}" IsChecked="True" />
+                        <MenuItem Header="Author" Style="{StaticResource RadioMenuItem}" />
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="View">
+                        <MenuItem Header="List" Style="{StaticResource RadioMenuItem}" />
+                        <MenuItem Header="Details" Style="{StaticResource RadioMenuItem}" IsChecked="True" />
+                        <MenuItem Header="Tiles" Style="{StaticResource RadioMenuItem}" />
+                    </MenuItem>
+                    <MenuItem Header="Sort by">
+                        <MenuItem Header="Title"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Title,Path=CurrentSort,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding SortCommand}"
+                                  CommandParameter="Title" />
+                        <MenuItem Header="Author"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Author,Path=CurrentSort,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding SortCommand}"
+                                  CommandParameter="Author" />
+                        <MenuItem Header="Genre"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Genre,Path=CurrentSort,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding SortCommand}"
+                                  CommandParameter="Genre" />
+                        <MenuItem Header="Path"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Path,Path=CurrentSort,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding SortCommand}"
+                                  CommandParameter="Path" />
+                        <Separator />
+                        <MenuItem Header="Ascending"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding Path=CurrentSortDirection,Mode=OneWay,Converter={StaticResource TrueWhenAscending}}"
+                                  Command="{Binding SortAscendingCommand}" />
+                        <MenuItem Header="Descending"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding Path=CurrentSortDirection,Mode=OneWay,Converter={StaticResource TrueWhenDescending}}"
+                                  Command="{Binding SortDescendingCommand}" />
+                        <Separator />
+                        <MenuItem Header="More..." />
+                    </MenuItem>
+                    <MenuItem Header="Group by">
+                        <MenuItem Header="Author"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Author,Path=CurrentGroup,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding GroupCommand}"
+                                  CommandParameter="Author" />
+                        <MenuItem Header="Genre"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding ConverterParameter=Genre,Path=CurrentGroup,Mode=OneWay,Converter={StaticResource TrueWhenMatch}}"
+                                  Command="{Binding GroupCommand}"
+                                  CommandParameter="Genre" />
+                        <MenuItem Header="(None)"
+                                  Visibility="{Binding Path=CurrentGroup,Mode=OneWay,Converter={StaticResource CollapsedWhenNull}}"
+                                  Command="{Binding GroupCommand}"
+                                  CommandParameter="{x:Null}" />
+                        <Separator />
+                        <MenuItem Header="Ascending"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding Path=CurrentGroupDirection,Mode=OneWay,Converter={StaticResource TrueWhenAscending}}"
+                                  Command="{Binding GroupAscendingCommand}" />
+                        <MenuItem Header="Descending"
+                                  Style="{StaticResource RadioMenuItem}"
+                                  IsChecked="{Binding Path=CurrentGroupDirection,Mode=OneWay,Converter={StaticResource TrueWhenDescending}}"
+                                  Command="{Binding GroupDescendingCommand}" />
+                        <Separator />
+                        <MenuItem Header="More..." />
+                    </MenuItem>
+                    <MenuItem Header="Refresh" />
+                    <!--<Separator />-->
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -118,7 +211,13 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <Expander IsExpanded="True" Style="{StaticResource ListViewGroupExpander}" Header="{Binding Name}">
+                                        <Expander IsExpanded="True" Style="{StaticResource ListViewGroupExpander}">
+                                            <Expander.Header>
+                                                <MultiBinding Converter="{StaticResource MultiStringConverter}" ConverterParameter="{}{0} ({1})">
+                                                    <Binding Path="Name" />
+                                                    <Binding Path="ItemCount" />
+                                                </MultiBinding>
+                                            </Expander.Header>
                                             <Expander.Content>
                                                 <ItemsPresenter />
                                             </Expander.Content>

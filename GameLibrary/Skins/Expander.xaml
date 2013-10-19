@@ -87,23 +87,25 @@
                     <VisualState x:Name="Indeterminate" />
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>-->
+            <!--
+                      Data="M 3.5 1 L 3.5 8 L 4 8 L 7.5 4.5 L 4 1 Z"
+                      Data="M 3.5 0.5 L 3.5 8.5 L 7.5 4.5 Z"
+            -->
             <Grid>
                 <Path x:Name="CollapsedArrow"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center"
-                      Data="M 4 1 L 4 9 L 8 5 Z">
-                    <Path.Stroke>
-                        <SolidColorBrush Color="{DynamicResource GlyphColor}" />
-                    </Path.Stroke>
+                      Data="M 3.5 2 L 3.5 9.05 L 4.55 9.05 L 7.75 5.5 L 4.5 2 Z"
+                      Stroke="#FF909090"
+                      Fill="White">
                 </Path>
                 <Path x:Name="ExpandedArrow"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center"
                       Visibility="Collapsed"
-                      Data="M 2 6 L 8 6 L 8 0 Z">
-                    <Path.Fill>
-                        <SolidColorBrush Color="{DynamicResource GlyphColor}" />
-                    </Path.Fill>
+                      Data="M 3 5.5 L 6.75 5.5 L 7.5 4.75 L 7.5 1 L 6.75 1 L 3 4.75 Z"
+                      Fill="#FF595959"
+                      Stroke="Black">
                 </Path>
             </Grid>
         </Border>
@@ -145,11 +147,12 @@
                             <ContentPresenter Grid.Column="1"
                                               Margin="4"
                                               ContentSource="Header"
-                                              TextElement.FontSize="14"
+                                              TextElement.Foreground="#FF1E3287"
+                                              TextElement.FontSize="15.75"
                                               RecognizesAccessKey="True" />
                             <Path Grid.Column="2"
                                   Data="M 0 0 L 10 0"
-                                  Stroke="#ffe0e0ff"
+                                  Stroke="#ffE5E5E5"
                                   StrokeThickness="1"
                                   VerticalAlignment="Center"
                                   Margin="5,2,10,0"
