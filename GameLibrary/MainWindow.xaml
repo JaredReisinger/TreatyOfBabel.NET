@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="535"
-        Height="300"
+        Width="600"
+        Height="500"
         Title="Text Adventure Game Library"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     
@@ -55,7 +55,14 @@
                 <MenuItem Header="About [NYI]" />
             </MenuItem>
         </Menu>
-        <ToolBarTray DockPanel.Dock="Top">
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="status..." />
+            <Separator />
+            <TextBlock Text="status..." />
+        </StatusBar>
+
+        <!--<ToolBarTray DockPanel.Dock="Top">
             <ToolBar Header="[toolbar 1]">
                 <Button>Foo</Button>
                 <Button>Bar</Button>
@@ -66,15 +73,44 @@
                 <Button>Bar</Button>
                 <Button>Baz</Button>
             </ToolBar>
-        </ToolBarTray>
+        </ToolBarTray>-->
 
-        <TextBlock FontSize="36"
-                   FontWeight="Bold"
-                   Foreground="Purple"
-                   Text="{Binding WelcomeText}"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   TextWrapping="Wrap" />
+        <TextBlock DockPanel.Dock="Top"
+                   Background="Pink"
+                   Padding="5"
+                   TextWrapping="Wrap"
+                   Text="{Binding RootPath}" />
+
+        <StackPanel DockPanel.Dock="Right"
+                    Width="300"
+                    Margin="10"
+                    DataContext="{Binding SelectedItem, ElementName=GameList}">
+            <Image Source="{Binding Image}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" />
+            <TextBlock Text="{Binding Author}" />
+            <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
+        </StackPanel>
+
+        <ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Image Grid.Column="0" Source="{Binding Image}" MaxHeight="60" MaxWidth="60" Margin="5,0" />
+                        <StackPanel Grid.Column="1" Margin="5,0">
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" />
+                            <TextBlock Text="{Binding Author}" />
+                            <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+        </ListBox>
 
     </DockPanel>
 </Window>

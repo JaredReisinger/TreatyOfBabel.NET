@@ -1,5 +1,9 @@
 using GalaSoft.MvvmLight;
 using GameLibrary.Model;
+using System.Collections.ObjectModel;
+using System.Reactive;
+using System.Reactive.Linq;
+using System;
 
 namespace GameLibrary.ViewModel
 {
@@ -15,49 +19,52 @@ namespace GameLibrary.ViewModel
     /// See http://www.galasoft.ch/mvvm
     /// </para>
     /// </summary>
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBaseEx, IObserver<Game>
     {
         private readonly IDataService dataService;
+        private ObservableCollection<Game> games;
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
         {
             this.dataService = dataService;
-            this.dataService.GetData((item, error) =>
-                {
-                    if (error != null)
-                    {
-                        // Report error here
-                        return;
-                    }
+            this.games = new ObservableCollection<Game>();
+            this.Games = new ReadOnlyObservableCollection<Game>(this.games);
 
-                    this.WelcomeText = item.Title;
-                });
+            this.RootPath = "???";  // Get root path from service?
+
+            this.dataService.GetGames(null)
+                .ObserveOnDispatcher()
+                .Subscribe(this);
         }
 
-        /// <summary>
-        /// The <see cref="WelcomeText" /> property's name.
-        /// </summary>
-        public const string WelcomeTextPropertyName = "WelcomeText";
-
-        private string welcomeText = string.Empty;
-
-        /// <summary>
-        /// Sets and gets the WelcomeText property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string WelcomeText
+        private string rootPath;
+        public string RootPath
         {
-            get
-            {
-                return welcomeText;
-            }
-
-            set
-            {
-                this.Set(WelcomeTextPropertyName, ref this.welcomeText, value);
-            }
+            get { return this.rootPath; }
+            private set { this.Set(ref this.rootPath, value); }
         }
+
+        public ReadOnlyObservableCollection<Game> Games { get; private set; }
+
+        #region IObserver<Game> Members
+
+        public void OnNext(Game game)
+        {
+            this.games.Add(game);
+        }
+
+        public void OnCompleted()
+        {
+        }
+
+        public void OnError(Exception ex)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

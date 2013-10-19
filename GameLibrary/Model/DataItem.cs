@@ -7,11 +7,18 @@ namespace GameLibrary.Model
 {
     public class DataItem
     {
-        public DataItem(string title)
+        public DataItem(string rootPath)
         {
-            this.Title = title;
+            this.RootPath = rootPath;
+            this.Games = new List<Game>();
         }
 
-        public string Title { get; private set; }
+        public void AddGame(Game game)
+        {
+            this.Games.Add(game);
+        }
+
+        public string RootPath { get; private set; }
+        public IList<Game> Games { get; private set; }
     }
 }
