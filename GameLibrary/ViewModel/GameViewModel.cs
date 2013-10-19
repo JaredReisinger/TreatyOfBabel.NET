@@ -17,7 +17,6 @@ namespace GameLibrary.ViewModel
     public class GameViewModel : ViewModelBaseEx
     {
         private FileInfo file;
-        private BlorbReader blorb;
 
         public GameViewModel(Model.Game game)
         {
@@ -27,39 +26,37 @@ namespace GameLibrary.ViewModel
             this.Title = game.Title;
             this.Author = game.Author;
 
-            this.blorb = new BlorbReader(game.FullPath);
-
-            if (this.blorb != null && this.blorb.Metadata != null)
+            using (var blorb = new BlorbReader(game.FullPath))
             {
-                XNamespace ns = "http://babel.ifarchive.org/protocol/iFiction/";
-
-                var lameReader = this.blorb.Metadata.CreateReader();
-                XmlNamespaceManager xmlns = new XmlNamespaceManager(lameReader.NameTable);
-                xmlns.AddNamespace("i", ns.NamespaceName);
-
-                var biblio = this.blorb.Metadata.XPathSelectElement("/i:ifindex/i:story/i:bibliographic", xmlns);
-
-                if (biblio != null)
+                if (blorb != null && blorb.Metadata != null)
                 {
-                    this.Title = this.ValueOrDefault(biblio, "i:title", xmlns, this.Title);
-                    this.Headline = this.ValueOrDefault(biblio, "i:headline", xmlns, this.Headline);
-                    this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
-                    this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
-                    this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
+                    XNamespace ns = "http://babel.ifarchive.org/protocol/iFiction/";
 
-                    ////<headline>A Metasemantic Construction</headline>
-                    ////<genre>Fiction</genre>
-                    ////<firstpublished>2010</firstpublished>
-                    ////<description>...</description>
-                    ////<language>en</language>
-                    ////<group>Inform</group>
+                    var lameReader = blorb.Metadata.CreateReader();
+                    XmlNamespaceManager xmlns = new XmlNamespaceManager(lameReader.NameTable);
+                    xmlns.AddNamespace("i", ns.NamespaceName);
 
+                    var biblio = blorb.Metadata.XPathSelectElement("/i:ifindex/i:story/i:bibliographic", xmlns);
+
+                    if (biblio != null)
+                    {
+                        this.Title = this.ValueOrDefault(biblio, "i:title", xmlns, this.Title);
+                        this.Headline = this.ValueOrDefault(biblio, "i:headline", xmlns, this.Headline);
+                        this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
+                        this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
+                        this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
+
+                        ////<firstpublished>2010</firstpublished>
+                        ////<language>en</language>
+                        ////<group>Inform</group>
+                    }
                 }
-            }
 
-            if (this.blorb != null && this.blorb.CoverImage != null)
-            {
-                this.Image = this.blorb.CoverImage;
+                if (blorb != null)
+                {
+                    this.FullImage = blorb.GetCoverImage(300, 300);
+                    this.ThumbImage = blorb.GetCoverImage(60, 60);
+                }
             }
         }
 
@@ -116,11 +113,18 @@ namespace GameLibrary.ViewModel
             private set { this.Set(ref this.description, value); }
         }
 
-        private ImageSource image;
-        public ImageSource Image
+        private ImageSource fullImage;
+        public ImageSource FullImage
         {
-            get { return this.image; }
-            private set { this.Set(ref this.image, value); }
+            get { return this.fullImage; }
+            private set { this.Set(ref this.fullImage, value); }
+        }
+
+        private ImageSource thumbImage;
+        public ImageSource ThumbImage
+        {
+            get { return this.thumbImage; }
+            private set { this.Set(ref this.thumbImage, value); }
         }
     }
 }

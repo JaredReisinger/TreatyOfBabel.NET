@@ -10,31 +10,71 @@ using System.Xml.Linq;
 
 namespace TreatyOfBabel
 {
-    public class BlorbReader
+    public sealed class BlorbReader : IDisposable
     {
+        private IffReader reader;
+
         public BlorbReader(string file)
         {
-            using (var reader = new IffReader(file))
+            this.reader = new IffReader(file);
+            this.ReadBlorb();
+        }
+
+        private bool disposed;
+        public void Dispose()
+        {
+            if (!this.disposed)
             {
-                this.ReadBlorb(reader);
-                this.CoverImage = this.GetCoverImage(reader);
+                if (this.reader != null)
+                {
+                    this.reader.Dispose();
+                    this.reader = null;
+                }
+
+                this.disposed = true;
+                GC.SuppressFinalize(this);
             }
         }
 
-        private void ReadBlorb(IffReader reader)
+        private void ReadBlorb()
         {
-            foreach (var chunk in reader.GetChunks(0))
+            foreach (var chunk in this.reader.GetChunks(0))
             {
                 var node = new IffInfoNode(null, chunk);
-                this.HandleIffInfoNode(node, reader);
+                this.HandleIffInfoNode(node, 0);
             }
         }
 
         // Get metadata
         public XDocument Metadata { get { return this.metadata; } }
-        public BitmapImage CoverImage { get; private set; }
 
-        private BitmapImage GetCoverImage(IffReader reader)
+        public BitmapImage GetCoverImage(int? width = null, int? height = null)
+        {
+            BitmapImage bmp = null;
+            var stream = this.GetCoverImageStream();
+            if (stream != null)
+            {
+                bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.StreamSource = stream;
+
+                if (width.HasValue)
+                {
+                    bmp.DecodePixelWidth = width.Value;
+                }
+
+                if (height.HasValue)
+                {
+                    bmp.DecodePixelHeight = height.Value;
+                }
+
+                bmp.EndInit();
+            }
+
+            return bmp;
+        }
+
+        private Stream GetCoverImageStream()
         {
             if (!this.coverImage.HasValue)
             {
@@ -47,17 +87,14 @@ namespace TreatyOfBabel
                 return null;
             }
 
-            var artTypeId = reader.ReadTypeId(coverOffset);
-            var artLength = reader.ReadUint();
+            var artTypeId = this.reader.ReadTypeId(coverOffset);
+            var artLength = this.reader.ReadUint();
 
-            var bytes = reader.ReadBytes(artLength);
+            var bytes = this.reader.ReadBytes(artLength);
 
-            var bmp = new BitmapImage();
-            bmp.BeginInit();
-            bmp.StreamSource = new MemoryStream(bytes);
-            bmp.EndInit();
+            var stream = new MemoryStream(bytes);
 
-            return bmp;
+            return stream;
         }
 
         List<IffInfoNode> infoNodes = new List<IffInfoNode>();
@@ -73,14 +110,14 @@ namespace TreatyOfBabel
 
         private uint? coverImage;
 
-        private void HandleIffInfoNode(IffInfoNode info, IffReader reader, int depth = 0)
+        private void HandleIffInfoNode(IffInfoNode info, int depth)
         {
             this.infoNodes.Add(info);
 
             switch (info.TypeId)
             {
                 case "FORM":
-                    var formType = reader.ReadTypeId(info.ContentOffset);
+                    var formType = this.reader.ReadTypeId(info.ContentOffset);
                     if (depth == 0 && formType != "IFRS")
                     {
                         Console.WriteLine("Unexpected FORM subtype!");
@@ -89,10 +126,10 @@ namespace TreatyOfBabel
                     // ignore sounds!
                     if (formType != "AIFF")
                     {
-                        foreach (var chunk in reader.GetChunks(info.ContentOffset + 4))
+                        foreach (var chunk in this.reader.GetChunks(info.ContentOffset + 4))
                         {
                             var node = new IffInfoNode(info, chunk);
-                            this.HandleIffInfoNode(node, reader, depth + 1);
+                            this.HandleIffInfoNode(node, depth + 1);
                         }
                     }
                     break;
@@ -105,14 +142,14 @@ namespace TreatyOfBabel
                     else
                     {
                         Console.WriteLine();
-                        var count = reader.ReadUint(info.Offset + 8);
+                        var count = this.reader.ReadUint(info.Offset + 8);
                         uint expectedCount = (info.Length - 4) / 12;
                         System.Diagnostics.Debug.Assert(count == expectedCount);
                         for (uint i = 0; i < expectedCount; ++i)
                         {
-                            var indexType = reader.ReadTypeId();
-                            var indexId = reader.ReadUint();
-                            var indexOffset = reader.ReadUint();
+                            var indexType = this.reader.ReadTypeId();
+                            var indexId = this.reader.ReadUint();
+                            var indexOffset = this.reader.ReadUint();
 
                             switch (indexType)
                             {
@@ -145,7 +182,7 @@ namespace TreatyOfBabel
                     }
                     else
                     {
-                        var bytes = reader.ReadBytes(info.Offset + 8, info.Length);
+                        var bytes = this.reader.ReadBytes(info.Offset + 8, info.Length);
                         using (var stream = new MemoryStream(bytes))
                         {
                             this.metadata = XDocument.Load(stream);
@@ -160,7 +197,7 @@ namespace TreatyOfBabel
                     }
                     else
                     {
-                        this.coverImage = reader.ReadUint(info.Offset + 8);
+                        this.coverImage = this.reader.ReadUint(info.Offset + 8);
                     }
                     break;
 

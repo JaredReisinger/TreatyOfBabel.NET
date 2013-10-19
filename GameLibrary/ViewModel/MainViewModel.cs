@@ -33,7 +33,7 @@ namespace GameLibrary.ViewModel
             this.games = new ObservableCollection<GameViewModel>();
             this.Games = new ReadOnlyObservableCollection<GameViewModel>(this.games);
 
-            this.RootPath = "???";  // Get root path from service?
+            this.RootPath = "TODO: Get Root Path!";
 
             this.dataService.GetGames(null)
                 .ObserveOnDispatcher()
