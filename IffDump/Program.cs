@@ -107,16 +107,44 @@ namespace IffDump
             {
                 foreach (var chunk in reader.GetChunks(0))
                 {
-                    Console.WriteLine("chunk @0x{0:x8}, {1}, length 0x{2:x8}", chunk.Offset, chunk.TypeId, chunk.Length);
-
-                    if (chunk.TypeId == "FORM")
-                    {
-                        foreach (var chunkInner in reader.GetChunks(chunk.Offset + 4 + 4 + 4))
-                        {
-                            Console.WriteLine("--chunk @0x{0:x8}, {1}, length 0x{2:x8}", chunkInner.Offset, chunkInner.TypeId, chunkInner.Length);
-                        }
-                    }
+                    this.DumpIffInfo(chunk, reader);
                 }
+            }
+        }
+
+        private void DumpIffInfo(IffInfo info, IffReader reader, int depth = 0)
+        {
+            string padding = new string(' ', depth * 4);
+
+            Console.Write("0x{0:x8} (0x{1:x8}) {2}{3}", info.Offset, info.Length, padding, info.TypeId);
+
+            switch (info.TypeId)
+            {
+                case "FORM":
+                    var formType = reader.ReadTypeId(info.ContentOffset);
+                    Console.WriteLine(" - {0}", formType);
+                    foreach (var chunk in reader.GetChunks(info.ContentOffset + 4))
+                    {
+                        this.DumpIffInfo(chunk, reader, depth + 1);
+                    }
+                    break;
+
+                case "RIdx":
+                    Console.WriteLine();
+                    reader.ReadTypeId(info.Offset);
+                    reader.ReadUint();
+                    uint expectedCount = info.Length / 12;
+                    for (uint i = 0; i < expectedCount; ++i)
+                    {
+                        var indexType = reader.ReadTypeId();
+                        var indexId = reader.ReadUint();
+                        var indexOffset = reader.ReadUint();
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine();
+                    break;
             }
         }
     }

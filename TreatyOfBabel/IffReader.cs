@@ -55,14 +55,20 @@ namespace TreatyOfBabel
 
                 if (!string.IsNullOrEmpty(typeId))
                 {
-                    var length = this.reader.ReadBigEndianUint32();
+                    var length = this.ReadUint();
                     yield return new IffInfo(currentOffset, typeId, length);
                     currentOffset += 4 + 4 + length;
                 }
             }
         }
 
-        private string ReadTypeId()
+        public string ReadTypeId(uint offset)
+        {
+            this.reader.BaseStream.Position = offset;
+            return this.ReadTypeId();
+        }
+
+        public string ReadTypeId()
         {
             var chars = this.reader.ReadChars(4);
 
@@ -73,6 +79,11 @@ namespace TreatyOfBabel
 
             System.Diagnostics.Debug.Assert(chars.Length == 4);
             return new string(chars);
+        }
+
+        public uint ReadUint()
+        {
+            return this.reader.ReadBigEndianUint32();
         }
     }
 
@@ -88,6 +99,7 @@ namespace TreatyOfBabel
         public uint Offset { get; private set; }
         public string TypeId { get; private set; }  // add sub-type, for FORM?
         public uint Length { get; private set; }
+        public uint ContentOffset { get { return this.Offset + 4 + 4; } }
     }
 
     public static class BinaryReaderExtensions
