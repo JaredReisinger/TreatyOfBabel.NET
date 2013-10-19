@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="800"
-        Height="600"
+        Width="900"
+        Height="700"
         Title="Text Adventure Game Library"
+        FocusManager.FocusedElement="{Binding ElementName=GameList}"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
 
     <Window.Resources>
@@ -81,19 +82,19 @@
                    TextWrapping="Wrap"
                    Text="{Binding RootPath}" />
 
-        <ScrollViewer DockPanel.Dock="Right" Width="300" VerticalScrollBarVisibility="Auto" Background="#f0f0f0">
-            <StackPanel DataContext="{Binding SelectedItem, ElementName=GameList}" Margin="10">
-                <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Left" />
+        <ScrollViewer DockPanel.Dock="Right" Width="500" VerticalScrollBarVisibility="Visible" Background="#f0f0f0">
+            <StackPanel DataContext="{Binding SelectedItem, ElementName=GameList}" Margin="10,0">
+                <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
                 <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding Headline}" FontSize="12" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding Author}" Margin="0,10,0,0" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
+                <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,20,0,20" />
                 <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,20,0,0" />
+                <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
             </StackPanel>
         </ScrollViewer>
 
-        <ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0" BorderThickness="0">
+        <ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,5">
@@ -102,11 +103,13 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0" Source="{Binding ThumbImage}" MaxHeight="60" MaxWidth="60" Margin="5,0" />
+                        <Border Grid.Column="0" Width="60" Height="60" Margin="5,0">
+                            <Image Source="{Binding ThumbImage}" MaxHeight="60" MaxWidth="60" />
+                        </Border>
                         <StackPanel Grid.Column="1" Margin="5,0">
-                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" />
-                            <TextBlock Text="{Binding Author}" />
-                            <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" />
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Author}" TextTrimming="CharacterEllipsis" />
+                            <!--<TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextTrimming="CharacterEllipsis" />-->
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

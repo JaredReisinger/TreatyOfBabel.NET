@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -26,6 +27,8 @@ namespace GameLibrary.ViewModel
             this.Title = game.Title;
             this.Author = game.Author;
 
+            var whitespace = new Regex(@"[ \t\n\v\r]+", RegexOptions.Compiled | RegexOptions.Multiline);
+
             using (var blorb = new BlorbReader(game.FullPath))
             {
                 if (blorb != null && blorb.Metadata != null)
@@ -45,6 +48,14 @@ namespace GameLibrary.ViewModel
                         this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
                         this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
                         this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
+
+                        if (!string.IsNullOrEmpty(this.Description))
+                        {
+                            // only <br/> is supported... all other whitespace should
+                            // get normalized to single spaces...
+                            this.Description = whitespace.Replace(this.Description, " ").Trim();
+                            this.Description = this.Description.Replace("<br/>", "\n");
+                        }
 
                         ////<firstpublished>2010</firstpublished>
                         ////<language>en</language>
