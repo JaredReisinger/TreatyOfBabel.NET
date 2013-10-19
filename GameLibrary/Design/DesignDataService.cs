@@ -10,21 +10,6 @@ namespace GameLibrary.Design
     {
         #region IDataService Members
 
-        public void GetData(Action<DataItem, Exception> callback)
-        {
-            // use this to create design-time data (note that hard-coded paths won't work for everyone!)
-            var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var gameFolder = Path.Combine(profile, @"SkyDrive\Documents\Interactive Fiction");
-            var item = new DataItem(gameFolder);
-
-            item.AddGame(new Game(Path.Combine(gameFolder, @"MiscIFGames\Dual.zblorb"), gameFolder));
-            item.AddGame(new Game(Path.Combine(gameFolder, @"MiscIFGames\LostPig.zblorb"), gameFolder));
-            item.AddGame(new Game(Path.Combine(gameFolder, @"MiscIFGames\RoTA.zblorb"), gameFolder));
-            item.AddGame(new Game(Path.Combine(gameFolder, @"MiscIFGames\Savoir-Faire.zblorb"), gameFolder));
-
-            callback(item, null);
-        }
-
         public IObservable<Game> GetGames(string rootPath)
         {
             if (string.IsNullOrEmpty(rootPath))

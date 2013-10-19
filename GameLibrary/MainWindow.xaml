@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="900"
         Height="700"
+        Width="900"
         Title="Text Adventure Game Library"
+        SnapsToDevicePixels="True"
         FocusManager.FocusedElement="{Binding ElementName=GameList}"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
 
@@ -14,8 +15,10 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
+                <ResourceDictionary Source="Skins/Expander.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
+
     </Window.Resources>
 
     <DockPanel x:Name="LayoutRoot">
@@ -76,13 +79,17 @@
             </ToolBar>
         </ToolBarTray>-->
 
-        <TextBlock DockPanel.Dock="Top"
-                   Background="#f0f0f0"
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#f0f0f0">
+            <TextBlock Text="Directory:"
                    Padding="5"
-                   TextWrapping="Wrap"
-                   Text="{Binding RootPath}" />
+                   TextWrapping="Wrap" />
+            <TextBlock Text="{Binding RootPath}"
+                   Padding="5"
+                   FontWeight="DemiBold"
+                   TextWrapping="Wrap" />
+        </StackPanel>
 
-        <ScrollViewer DockPanel.Dock="Right" Width="500" VerticalScrollBarVisibility="Visible" Background="#f0f0f0">
+        <ScrollViewer DockPanel.Dock="Right" Width="300" VerticalScrollBarVisibility="Visible" Background="#f0f0f0">
             <StackPanel DataContext="{Binding SelectedItem, ElementName=GameList}" Margin="10,0">
                 <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
                 <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
@@ -94,7 +101,99 @@
             </StackPanel>
         </ScrollViewer>
 
-        <ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListView x:Name="GameList"
+                  ItemsSource="{Binding GamesView.View}"
+                  BorderThickness="0"
+                  Foreground="Black"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <ListView.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                </Style>
+            </ListView.Resources>
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <Expander IsExpanded="True" Style="{StaticResource ListViewGroupExpander}" Header="{Binding Name}">
+                                            <Expander.Content>
+                                                <ItemsPresenter />
+                                            </Expander.Content>
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                    <!--<GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <Expander Header="{Binding Name}" x:Name="xx" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                    <GroupStyle.Panel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Visibility="{Binding IsExpanded,ElementName=xx}" />
+                        </ItemsPanelTemplate>
+                    </GroupStyle.Panel>-->
+                </GroupStyle>
+            </ListView.GroupStyle>
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Command" Value="{Binding SortCommand}" />
+                            <Setter Property="CommandParameter" Value="{Binding Content,RelativeSource={RelativeSource Self}}" />
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+                    <!--<GridView.ColumnHeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter Content="{Binding}" />
+                                <Polygon Points="0,10 8,10 4,6" Fill="Black" Stretch="Uniform" Margin="3,2,0,0" />
+                                <Polygon Points="0,10 8,10 4,14" Fill="Black" Stretch="Uniform" Margin="3,2,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ColumnHeaderTemplate>-->
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Grid.Column="0" Width="40" Height="40">
+                                    <Image Source="{Binding ThumbImage}" MaxHeight="40" MaxWidth="40" />
+                                </Border>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" Width="200" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Author}" Header="Author" Width="150" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Genre}" Header="Genre" Width="100" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Path}" Header="Path" Width="100" />
+                </GridView>
+            </ListView.View>
+            <!--<ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Width="60" Height="60" Margin="5,0">
+                            <Image Source="{Binding ThumbImage}" MaxHeight="60" MaxWidth="60" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="5,0">
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Author}" TextTrimming="CharacterEllipsis" />
+                            <!- -<TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextTrimming="CharacterEllipsis" />- ->
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>-->
+        </ListView>
+
+        <!--<ListBox x:Name="GameList" ItemsSource="{Binding Games}" SelectedIndex="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,5">
@@ -109,12 +208,12 @@
                         <StackPanel Grid.Column="1" Margin="5,0">
                             <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="{Binding Author}" TextTrimming="CharacterEllipsis" />
-                            <!--<TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextTrimming="CharacterEllipsis" />-->
+                            <!- -<TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextTrimming="CharacterEllipsis" />- ->
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-        </ListBox>
+        </ListBox>-->
 
     </DockPanel>
 </Window>
