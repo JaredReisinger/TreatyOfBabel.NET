@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GameLibrary.ViewModel;
 
 namespace GameLibrary
 {
@@ -23,6 +24,12 @@ namespace GameLibrary
         public MainWindow()
         {
             InitializeComponent();
+            this.Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            ViewModelLocator.Cleanup();
         }
     }
 }
