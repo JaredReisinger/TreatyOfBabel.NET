@@ -8,6 +8,7 @@ namespace TreatyOfBabel
 {
     public sealed class IffReader : IDisposable
     {
+        private bool disposeReader = true;
         private BinaryReader reader;
 
         public IffReader(string file)
@@ -15,9 +16,10 @@ namespace TreatyOfBabel
             this.reader = new BinaryReader(File.OpenRead(file));
         }
 
-        public IffReader(BinaryReader reader)
+        public IffReader(BinaryReader reader, bool disposeReader = true)
         {
             this.reader = reader;
+            this.disposeReader = disposeReader;
         }
 
         private bool disposed;
@@ -27,7 +29,11 @@ namespace TreatyOfBabel
             {
                 if (this.reader != null)
                 {
-                    this.reader.Dispose();
+                    if (this.disposeReader)
+                    {
+                        this.reader.Dispose();
+                    }
+
                     this.reader = null;
                 }
 

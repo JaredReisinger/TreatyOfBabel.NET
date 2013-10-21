@@ -61,6 +61,7 @@ namespace GameLibrary.ViewModel
                 this.games.Clear();
 
                 this.dataService.GetGames(this.RootPath)
+                    .DelaySubscription(TimeSpan.FromMilliseconds(100)) // a delay of 100ms lets the UI come up quickly
                     .ObserveOnDispatcher()
                     .Subscribe(this);
             }

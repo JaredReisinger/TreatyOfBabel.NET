@@ -15,7 +15,7 @@ namespace GameLibrary.Model
         {
             this.file = new FileInfo(filename);
 
-            this.Title = this.file.Name;
+            this.Title = Path.GetFileNameWithoutExtension(this.file.Name);
             this.Author = "An Author";
             this.FullPath = filename;
             this.RelativePath = filename.Substring(rootPath.Length + 1);

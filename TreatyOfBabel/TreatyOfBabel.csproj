@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -47,8 +48,20 @@
     <Compile Include="IffInfo.cs" />
     <Compile Include="IffInfoNode.cs" />
     <Compile Include="IffReader.cs" />
+    <Compile Include="IStoryFile.cs" />
+    <Compile Include="IStoryFileHandler.cs" />
+    <Compile Include="ITreatyProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StoryFile.cs" />
+    <Compile Include="StoryFileHandlerBase.cs" />
+    <Compile Include="TreatyHelper.cs" />
+    <Compile Include="TreatyProviders\Blorb.cs" />
+    <Compile Include="TreatyProviders\Glulx.cs" />
+    <Compile Include="TreatyProviders\Tads2.cs" />
+    <Compile Include="TreatyProviders\Tads3.cs" />
+    <Compile Include="TreatyProviders\Zcode.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

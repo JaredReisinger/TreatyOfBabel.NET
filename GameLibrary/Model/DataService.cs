@@ -25,6 +25,8 @@ namespace GameLibrary.Model
             {
                 var task = Task.Factory.StartNew(() =>
                 {
+                    // Use the Treaty of Babel helper to understand the files...
+                    var helper = App.TreatyHelper;
                     var files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
                     foreach (var file in files)
                     {
@@ -33,7 +35,7 @@ namespace GameLibrary.Model
                             break;
                         }
 
-                        if (file.EndsWith("blorb"))
+                        if (helper.IsTreatyFile(file))
                         {
                             var game = new Game(file, rootPath);
                             observer.OnNext(game);

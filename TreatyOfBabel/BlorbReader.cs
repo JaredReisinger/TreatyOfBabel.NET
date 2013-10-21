@@ -12,11 +12,20 @@ namespace TreatyOfBabel
 {
     public sealed class BlorbReader : IDisposable
     {
+        private bool disposeReader = true;
         private IffReader reader;
 
         public BlorbReader(string file)
         {
             this.reader = new IffReader(file);
+            this.ReadBlorb();
+        }
+
+        public BlorbReader(Stream stream, bool dispose = true)
+        {
+            // any way to prevent dispose of stream from BinaryReader?
+            var bin = new BinaryReader(stream);
+            this.reader = new IffReader(bin, dispose);
             this.ReadBlorb();
         }
 
@@ -27,7 +36,11 @@ namespace TreatyOfBabel
             {
                 if (this.reader != null)
                 {
-                    this.reader.Dispose();
+                    if (this.disposeReader)
+                    {
+                        this.reader.Dispose();
+                    }
+
                     this.reader = null;
                 }
 
@@ -46,7 +59,20 @@ namespace TreatyOfBabel
         }
 
         // Get metadata
-        public XDocument Metadata { get { return this.metadata; } }
+        public XDocument Metadata { get { return this.GetMetadata(); } }
+
+        public XDocument GetMetadata()
+        {
+            if (this.metadata == null)
+            {
+                using (var stream = this.GetMetadataStream())
+                {
+                    this.metadata = XDocument.Load(stream);
+                }
+            }
+
+            return this.metadata;
+        }
 
         public BitmapImage GetCoverImage(int? width = null, int? height = null)
         {
@@ -74,7 +100,7 @@ namespace TreatyOfBabel
             return bmp;
         }
 
-        private Stream GetCoverImageStream()
+        public Stream GetCoverImageStream()
         {
             if (!this.coverImage.HasValue)
             {
@@ -97,6 +123,18 @@ namespace TreatyOfBabel
             return stream;
         }
 
+        public Stream GetMetadataStream()
+        {
+            if (this.metadataInfo == null)
+            {
+                return null;
+            }
+
+            var bytes = this.reader.ReadBytes(this.metadataInfo.Offset + 8, this.metadataInfo.Length);
+            var stream = new MemoryStream(bytes);
+            return stream;
+        }
+
         List<IffInfoNode> infoNodes = new List<IffInfoNode>();
 
         // resource index data...
@@ -106,6 +144,7 @@ namespace TreatyOfBabel
         private Dictionary<uint, uint> dataResources = null;
         private Dictionary<uint, uint> execResources = null;
 
+        private IffInfoNode metadataInfo = null;
         private XDocument metadata = null;
 
         private uint? coverImage;
@@ -176,17 +215,13 @@ namespace TreatyOfBabel
                     break;
 
                 case "IFmd":
-                    if (metadata != null)
+                    if (this.metadataInfo != null)
                     {
                         Console.WriteLine(" - extra ID metadata? This is unexpected!");
                     }
                     else
                     {
-                        var bytes = this.reader.ReadBytes(info.Offset + 8, info.Length);
-                        using (var stream = new MemoryStream(bytes))
-                        {
-                            this.metadata = XDocument.Load(stream);
-                        }
+                        this.metadataInfo = info;
                     }
                     break;
 

@@ -28,51 +28,121 @@ namespace GameLibrary.ViewModel
             this.Path = game.RelativePath;
             this.file = new FileInfo(game.FullPath);
 
-            this.Title = game.Title;
-            this.Author = game.Author;
+            this.Title = game.Title ?? "An Interactive Fiction";    // why not file name?
+            this.Author = game.Author ?? "Anonymous";
 
             var whitespace = new Regex(@"[ \t\n\v\r]+", RegexOptions.Compiled | RegexOptions.Multiline);
 
-            using (var blorb = new BlorbReader(game.FullPath))
+            // Should use treaty API here...
+            var helper = App.TreatyHelper;
+            IStoryFileHandler handler;
+            if (helper.TryGetHandler(game.FullPath, out handler))
             {
-                if (blorb != null && blorb.Metadata != null)
+                this.Genre = string.Format("(Unknown {0})", handler.Provider.FormatName);
+
+                using (var metadataStream = handler.GetStoryFileMetadata())
                 {
-                    XNamespace ns = "http://babel.ifarchive.org/protocol/iFiction/";
 
-                    var lameReader = blorb.Metadata.CreateReader();
-                    XmlNamespaceManager xmlns = new XmlNamespaceManager(lameReader.NameTable);
-                    xmlns.AddNamespace("i", ns.NamespaceName);
-
-                    var biblio = blorb.Metadata.XPathSelectElement("/i:ifindex/i:story/i:bibliographic", xmlns);
-
-                    if (biblio != null)
+                    if (metadataStream != null)
                     {
-                        this.Title = this.ValueOrDefault(biblio, "i:title", xmlns, this.Title);
-                        this.Headline = this.ValueOrDefault(biblio, "i:headline", xmlns, this.Headline);
-                        this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
-                        this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
-                        this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
+                        XDocument metadata = XDocument.Load(metadataStream);
+                        XNamespace ns = "http://babel.ifarchive.org/protocol/iFiction/";
 
-                        if (!string.IsNullOrEmpty(this.Description))
+                        var lameReader = metadata.CreateReader();
+                        XmlNamespaceManager xmlns = new XmlNamespaceManager(lameReader.NameTable);
+                        xmlns.AddNamespace("i", ns.NamespaceName);
+
+                        var ident = metadata.XPathSelectElement("/i:ifindex/i:story/i:identification", xmlns);
+                        var biblio = metadata.XPathSelectElement("/i:ifindex/i:story/i:bibliographic", xmlns);
+                        var contact = metadata.XPathSelectElement("/i:ifindex/i:story/i:contacts", xmlns);
+
+                        if (ident != null)
                         {
-                            // only <br/> is supported... all other whitespace should
-                            // get normalized to single spaces...
-                            this.Description = whitespace.Replace(this.Description, " ").Trim();
-                            this.Description = this.Description.Replace("<br/>", "\n");
+                            this.Ifid = this.ValueOrDefault(ident, "i:ifid", xmlns, this.Ifid);
+                            this.Format = this.ValueOrDefault(ident, "i:format", xmlns, this.Format);
+                            this.Bafn = this.ValueOrDefault(ident, "i:bafn", xmlns, this.Bafn);
                         }
 
-                        ////<firstpublished>2010</firstpublished>
-                        ////<language>en</language>
-                        ////<group>Inform</group>
+                        if (biblio != null)
+                        {
+                            this.Title = this.ValueOrDefault(biblio, "i:title", xmlns, this.Title);
+                            this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
+                            this.Language = this.ValueOrDefault(biblio, "i:language", xmlns, this.Language);
+                            this.Headline = this.ValueOrDefault(biblio, "i:headline", xmlns, this.Headline);
+                            this.FirstPublished = this.ValueOrDefault(biblio, "i:firstpublished", xmlns, this.FirstPublished);
+                            this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
+                            this.Group = this.ValueOrDefault(biblio, "i:group", xmlns, this.Group);
+                            this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
+                            this.Series = this.ValueOrDefault(biblio, "i:series", xmlns, this.Series);
+                            this.SeriesNumber = this.ValueOrDefault(biblio, "i:seriesnumber", xmlns, this.SeriesNumber);
+                            this.Forgiveness = this.ValueOrDefault(biblio, "i:foregiveness", xmlns, this.Forgiveness);
+
+                            if (!string.IsNullOrEmpty(this.Description))
+                            {
+                                // only <br/> is supported... all other whitespace should
+                                // get normalized to single spaces...
+                                this.Description = whitespace.Replace(this.Description, " ").Trim();
+                                this.Description = this.Description.Replace("<br/>", "\n");
+                            }
+                        }
+
+                        if (contact != null)
+                        {
+                            this.Url = this.ValueOrDefault(contact, "i:url", xmlns, this.Url);
+                            this.AuthorEmail = this.ValueOrDefault(contact, "i:authoremail", xmlns, this.AuthorEmail);
+                        }
                     }
                 }
 
-                if (blorb != null)
+                this.FullImage = this.ImageFromStream(handler.GetStoryFileCover(), 300, 300);
+                this.ThumbImage = this.ImageFromStream(handler.GetStoryFileCover(), 60, 60);
+
+                if (string.IsNullOrEmpty(this.Ifid))
                 {
-                    this.FullImage = blorb.GetCoverImage(300, 300);
-                    this.ThumbImage = blorb.GetCoverImage(60, 60);
+                    ////System.Threading.ThreadPool.QueueUserWorkItem(state =>
+                    ////    {
+                    ////        var ifid = handler.GetStoryFileIfid();
+                    ////        if (string.IsNullOrEmpty(this.Ifid))
+                    ////        {
+                    ////            this.Ifid = ifid;
+                    ////        }
+                    ////    });
+                    //System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    //    {
+                    //        var ifid = handler.GetStoryFileIfid();
+                    //        if (string.IsNullOrEmpty(this.Ifid))
+                    //        {
+                    //            this.Ifid = ifid;
+                    //        }
+                    //    });
+                    ////this.Ifid = handler.GetStoryFileIfid();
                 }
             }
+        }
+
+        public BitmapImage ImageFromStream(Stream stream, int? width = null, int? height = null)
+        {
+            BitmapImage bmp = null;
+            if (stream != null)
+            {
+                bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.StreamSource = stream;
+
+                if (width.HasValue)
+                {
+                    bmp.DecodePixelWidth = width.Value;
+                }
+
+                if (height.HasValue)
+                {
+                    bmp.DecodePixelHeight = height.Value;
+                }
+
+                bmp.EndInit();
+            }
+
+            return bmp;
         }
 
         private string ValueOrDefault(XNode node, string xpath, XmlNamespaceManager xmlns, string defaultValue)
@@ -93,18 +163,34 @@ namespace GameLibrary.ViewModel
             private set { this.Set(ref this.path, value); }
         }
 
+        // identification
+        private string ifid;
+        public string Ifid
+        {
+            get { return this.ifid; }
+            private set { this.Set(ref this.ifid, value); }
+        }
+
+        private string format;
+        public string Format
+        {
+            get { return this.format; }
+            private set { this.Set(ref this.format, value); }
+        }
+
+        private string bafn;
+        public string Bafn
+        {
+            get { return this.bafn; }
+            private set { this.Set(ref this.bafn, value); }
+        }
+        
+        // bibliographic
         private string title;
         public string Title
         {
             get { return this.title; }
             private set { this.Set(ref this.title, value); }
-        }
-
-        private string headline;
-        public string Headline
-        {
-            get { return this.headline; }
-            private set { this.Set(ref this.headline, value); }
         }
 
         private string author;
@@ -114,11 +200,39 @@ namespace GameLibrary.ViewModel
             private set { this.Set(ref this.author, value); }
         }
 
+        private string language;
+        public string Language
+        {
+            get { return this.language; }
+            private set { this.Set(ref this.language, value); }
+        }
+
+        private string headline;
+        public string Headline
+        {
+            get { return this.headline; }
+            private set { this.Set(ref this.headline, value); }
+        }
+
+        private string firstPublished;
+        public string FirstPublished
+        {
+            get { return this.firstPublished; }
+            private set { this.Set(ref this.firstPublished, value); }
+        }
+
         private string genre;
         public string Genre
         {
             get { return this.genre; }
             private set { this.Set(ref this.genre, value); }
+        }
+
+        private string group;
+        public string Group
+        {
+            get { return this.group; }
+            private set { this.Set(ref this.group, value); }
         }
 
         private string description;
@@ -128,6 +242,45 @@ namespace GameLibrary.ViewModel
             private set { this.Set(ref this.description, value); }
         }
 
+        private string series;
+        public string Series
+        {
+            get { return this.series; }
+            private set { this.Set(ref this.series, value); }
+        }
+
+        private string seriesNumber;
+        public string SeriesNumber
+        {
+            get { return this.seriesNumber; }
+            private set { this.Set(ref this.seriesNumber, value); }
+        }
+
+        private string forgiveness;
+        public string Forgiveness
+        {
+            get { return this.forgiveness; }
+            private set { this.Set(ref this.forgiveness, value); }
+        }
+
+        //// resources/auxiliary not used...
+
+        //contact
+        private string url;
+        public string Url
+        {
+            get { return this.url; }
+            private set { this.Set(ref this.url, value); }
+        }
+
+        private string authorEmail;
+        public string AuthorEmail
+        {
+            get { return this.authorEmail; }
+            private set { this.Set(ref this.authorEmail, value); }
+        }
+
+        // images
         private ImageSource fullImage;
         public ImageSource FullImage
         {

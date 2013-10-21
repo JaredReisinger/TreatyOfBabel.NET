@@ -107,6 +107,7 @@
                     <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,20" Visibility="{Binding Description,Converter={StaticResource CollapsedWhenNull}}" />
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" Visibility="{Binding Genre,Converter={StaticResource CollapsedWhenNull}}" />
+                        <TextBlock Text="{Binding Ifid}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
                         <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
                     </StackPanel>
                 </StackPanel>
