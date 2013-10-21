@@ -15,6 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IffDump", "IffDump\IffDump.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLibrary", "GameLibrary\GameLibrary.csproj", "{FC36D55C-859D-4CEF-8FC9-865E67E08C49}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{0A931B51-E4CA-4C34-B818-11DB877798D7}"
+	ProjectSection(SolutionItems) = preProject
+		Samples\dreamhold.z8 = Samples\dreamhold.z8
+		Samples\LostPig.zblorb = Samples\LostPig.zblorb
+		Samples\metamorp.z5 = Samples\metamorp.z5
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

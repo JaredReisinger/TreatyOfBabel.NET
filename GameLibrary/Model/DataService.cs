@@ -14,13 +14,12 @@ namespace GameLibrary.Model
 
         public IObservable<Game> GetGames(string rootPath)
         {
-            if (string.IsNullOrEmpty(rootPath))
+            if (string.IsNullOrEmpty(rootPath) || !Directory.Exists(rootPath))
             {
-                var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                rootPath = Path.Combine(profile, @"SkyDrive\Documents\Interactive Fiction");
+                return Observable.Empty<Game>();
             }
 
-            // iterate the root path, looking for games...
+            // iterate the path, looking for games...
             return Observable.Create<Game>((observer, cancel) =>
             {
                 var task = Task.Factory.StartNew(() =>

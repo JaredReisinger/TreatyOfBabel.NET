@@ -50,8 +50,11 @@ namespace GameLibrary.ViewModel
 
             this.PropertyChanged += MainViewModel_PropertyChanged;
 
-            var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            this.RootPath = Path.Combine(profile, @"SkyDrive\Documents\Interactive Fiction");
+            // TODO: Add a persisted setting for the directory to enumerate.
+            // TODO: Use the user's document directory by default?
+            // For now, we use the "Samples" directory, because we know that
+            // we're in a development context. :)
+            this.RootPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\Samples"));
         }
 
         void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
