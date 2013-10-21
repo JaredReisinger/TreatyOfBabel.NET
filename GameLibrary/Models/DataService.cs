@@ -12,15 +12,15 @@ namespace GameLibrary.Models
     {
         #region IDataService Members
 
-        public IObservable<Game> GetGames(string rootPath)
+        public IObservable<GameModel> GetGames(string rootPath)
         {
             if (string.IsNullOrEmpty(rootPath) || !Directory.Exists(rootPath))
             {
-                return Observable.Empty<Game>();
+                return Observable.Empty<GameModel>();
             }
 
             // iterate the path, looking for games...
-            return Observable.Create<Game>((observer, cancel) =>
+            return Observable.Create<GameModel>((observer, cancel) =>
             {
                 var task = Task.Factory.StartNew(() =>
                 {
@@ -36,7 +36,7 @@ namespace GameLibrary.Models
 
                         if (helper.IsTreatyFile(file))
                         {
-                            var game = new Game(file, rootPath);
+                            var game = new GameModel(file, rootPath);
                             observer.OnNext(game);
                         }
                     }

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace GameLibrary.Models
 {
-    public class Game
+    public class GameModel
     {
         private FileInfo file;
 
-        public Game(string filename, string rootPath)
+        public GameModel(string filename, string rootPath)
         {
             this.file = new FileInfo(filename);
 

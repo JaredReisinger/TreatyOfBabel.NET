@@ -21,7 +21,7 @@ namespace GameLibrary.ViewModels
     {
         private FileInfo file;
 
-        public GameViewModel(Models.Game game)
+        public GameViewModel(Models.GameModel game)
         {
             this.PlayCommand = new RelayCommand(this.Play);
 

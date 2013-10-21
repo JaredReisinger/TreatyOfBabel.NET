@@ -7,6 +7,6 @@ namespace GameLibrary.Models
 {
     public interface IDataService
     {
-        IObservable<Game> GetGames(string rootPath);
+        IObservable<GameModel> GetGames(string rootPath);
     }
 }

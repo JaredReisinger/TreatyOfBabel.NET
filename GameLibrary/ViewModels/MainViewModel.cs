@@ -16,7 +16,7 @@ namespace GameLibrary.ViewModels
     /// <summary>
     /// This class contains properties that the main View can data bind to.
     /// </summary>
-    public class MainViewModel : ViewModelBaseEx, IObserver<Game>
+    public class MainViewModel : ViewModelBaseEx, IObserver<GameModel>
     {
         private readonly IDataService dataService;
         private ObservableCollection<GameViewModel> games;
@@ -119,7 +119,7 @@ namespace GameLibrary.ViewModels
 
         #region IObserver<Game> Members
 
-        public void OnNext(Game game)
+        public void OnNext(GameModel game)
         {
             this.games.Add(new GameViewModel(game));
         }

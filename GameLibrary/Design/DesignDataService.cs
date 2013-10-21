@@ -12,14 +12,14 @@ namespace GameLibrary.Design
     {
         #region IDataService Members
 
-        public IObservable<Game> GetGames(string rootPath)
+        public IObservable<GameModel> GetGames(string rootPath)
         {
             if (string.IsNullOrEmpty(rootPath))
             {
                 rootPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\Samples"));
             }
 
-            return Directory.EnumerateFiles(rootPath).Select(file => new Game(file, rootPath)).ToObservable();
+            return Directory.EnumerateFiles(rootPath).Select(file => new GameModel(file, rootPath)).ToObservable();
         }
 
         #endregion
