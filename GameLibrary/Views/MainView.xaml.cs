@@ -12,22 +12,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GameLibrary.ViewModel;
+using GameLibrary.ViewModels;
 
-namespace GameLibrary
+namespace GameLibrary.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainView : Window
     {
-        public MainWindow()
+        public MainView()
         {
             InitializeComponent();
-            this.Closing += MainWindow_Closing;
+            this.Closing += MainView_Closing;
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void MainView_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             ViewModelLocator.Cleanup();
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GameLibrary.Model
+namespace GameLibrary.Models
 {
     public interface IDataService
     {

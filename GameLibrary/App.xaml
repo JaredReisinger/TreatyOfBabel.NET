@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             StartupUri="MainWindow.xaml">
+             StartupUri="/Views/MainView.xaml">
     <Application.Resources>
-        <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:GameLibrary.ViewModel" />
+        <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:GameLibrary.ViewModels" />
     </Application.Resources>
 </Application>

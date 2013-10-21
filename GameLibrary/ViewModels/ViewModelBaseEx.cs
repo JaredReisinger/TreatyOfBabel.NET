@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using GalaSoft.MvvmLight;
 
-namespace GameLibrary.ViewModel
+namespace GameLibrary.ViewModels
 {
     /// <summary>
     /// Extends GalaSoft's ViewModelBase by adding a Set() override that

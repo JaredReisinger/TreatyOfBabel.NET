@@ -1,5 +1,5 @@
 ﻿using System;
-using GameLibrary.Model;
+using GameLibrary.Models;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;

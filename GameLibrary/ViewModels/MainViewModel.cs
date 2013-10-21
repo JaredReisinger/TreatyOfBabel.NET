@@ -9,9 +9,9 @@ using System.Windows;
 using System.Windows.Data;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using GameLibrary.Model;
+using GameLibrary.Models;
 
-namespace GameLibrary.ViewModel
+namespace GameLibrary.ViewModels
 {
     /// <summary>
     /// This class contains properties that the main View can data bind to.

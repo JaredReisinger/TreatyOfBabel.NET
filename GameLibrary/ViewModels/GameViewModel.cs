@@ -15,13 +15,13 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using TreatyOfBabel;
 
-namespace GameLibrary.ViewModel
+namespace GameLibrary.ViewModels
 {
     public class GameViewModel : ViewModelBaseEx
     {
         private FileInfo file;
 
-        public GameViewModel(Model.Game game)
+        public GameViewModel(Models.Game game)
         {
             this.PlayCommand = new RelayCommand(this.Play);
 

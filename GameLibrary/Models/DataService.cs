@@ -6,7 +6,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace GameLibrary.Model
+namespace GameLibrary.Models
 {
     public class DataService : IDataService
     {

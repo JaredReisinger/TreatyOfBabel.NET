@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameLibrary.Model
+namespace GameLibrary.Models
 {
     public class Game
     {
