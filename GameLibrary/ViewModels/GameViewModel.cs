@@ -19,143 +19,44 @@ namespace GameLibrary.ViewModels
 {
     public class GameViewModel : ViewModelBaseEx
     {
-        private FileInfo file;
+        private Models.GameModel model;
 
-        public GameViewModel(Models.GameModel game)
+        public GameViewModel(Models.GameModel model)
         {
+            this.model = model;
             this.PlayCommand = new RelayCommand(this.Play);
 
-            this.Path = game.RelativePath;
-            this.file = new FileInfo(game.FullPath);
+            // Copy fields from the model...
+            this.Path = model.RelativePath;
 
-            this.Title = game.Title ?? "An Interactive Fiction";    // why not file name?
-            this.Author = game.Author ?? "Anonymous";
+            this.Ifid = model.Ifid;
+            this.Format = model.Format;
+            this.Bafn = model.Bafn;
+            this.Title = model.Title;
+            this.Author = model.Author;
+            this.Language = model.Language;
+            this.Headline = model.Headline;
+            this.FirstPublished = model.FirstPublished;
+            this.Genre = model.Genre;
+            this.Group = model.Group;
+            this.Description = model.Description;
+            this.Series = model.Series;
+            this.SeriesNumber = model.SeriesNumber;
+            this.Forgiveness = model.Forgiveness;
+            this.Url = model.Url;
+            this.AuthorEmail = model.AuthorEmail;
 
-            var whitespace = new Regex(@"[ \t\n\v\r]+", RegexOptions.Compiled | RegexOptions.Multiline);
-
-            // Should use treaty API here...
-            var helper = App.TreatyHelper;
-            IStoryFileHandler handler;
-            if (helper.TryGetHandler(game.FullPath, out handler))
+            if (model.CoverImageStream != null)
             {
-                this.Genre = string.Format("(Unknown {0})", handler.Provider.FormatName);
-
-                using (var metadataStream = handler.GetStoryFileMetadata())
-                {
-
-                    if (metadataStream != null)
-                    {
-                        XDocument metadata = XDocument.Load(metadataStream);
-                        XNamespace ns = "http://babel.ifarchive.org/protocol/iFiction/";
-
-                        var lameReader = metadata.CreateReader();
-                        XmlNamespaceManager xmlns = new XmlNamespaceManager(lameReader.NameTable);
-                        xmlns.AddNamespace("i", ns.NamespaceName);
-
-                        var ident = metadata.XPathSelectElement("/i:ifindex/i:story/i:identification", xmlns);
-                        var biblio = metadata.XPathSelectElement("/i:ifindex/i:story/i:bibliographic", xmlns);
-                        var contact = metadata.XPathSelectElement("/i:ifindex/i:story/i:contacts", xmlns);
-
-                        if (ident != null)
-                        {
-                            this.Ifid = this.ValueOrDefault(ident, "i:ifid", xmlns, this.Ifid);
-                            this.Format = this.ValueOrDefault(ident, "i:format", xmlns, this.Format);
-                            this.Bafn = this.ValueOrDefault(ident, "i:bafn", xmlns, this.Bafn);
-                        }
-
-                        if (biblio != null)
-                        {
-                            this.Title = this.ValueOrDefault(biblio, "i:title", xmlns, this.Title);
-                            this.Author = this.ValueOrDefault(biblio, "i:author", xmlns, this.Author);
-                            this.Language = this.ValueOrDefault(biblio, "i:language", xmlns, this.Language);
-                            this.Headline = this.ValueOrDefault(biblio, "i:headline", xmlns, this.Headline);
-                            this.FirstPublished = this.ValueOrDefault(biblio, "i:firstpublished", xmlns, this.FirstPublished);
-                            this.Genre = this.ValueOrDefault(biblio, "i:genre", xmlns, this.Genre);
-                            this.Group = this.ValueOrDefault(biblio, "i:group", xmlns, this.Group);
-                            this.Description = this.ValueOrDefault(biblio, "i:description", xmlns, this.Description);
-                            this.Series = this.ValueOrDefault(biblio, "i:series", xmlns, this.Series);
-                            this.SeriesNumber = this.ValueOrDefault(biblio, "i:seriesnumber", xmlns, this.SeriesNumber);
-                            this.Forgiveness = this.ValueOrDefault(biblio, "i:foregiveness", xmlns, this.Forgiveness);
-
-                            if (!string.IsNullOrEmpty(this.Description))
-                            {
-                                // only <br/> is supported... all other whitespace should
-                                // get normalized to single spaces...
-                                this.Description = whitespace.Replace(this.Description, " ").Trim();
-                                this.Description = this.Description.Replace("<br/>", "\n");
-                            }
-                        }
-
-                        if (contact != null)
-                        {
-                            this.Url = this.ValueOrDefault(contact, "i:url", xmlns, this.Url);
-                            this.AuthorEmail = this.ValueOrDefault(contact, "i:authoremail", xmlns, this.AuthorEmail);
-                        }
-                    }
-                }
-
-                this.FullImage = this.ImageFromStream(handler.GetStoryFileCover(), 300, 300);
-                this.ThumbImage = this.ImageFromStream(handler.GetStoryFileCover(), 60, 60);
-
-                if (string.IsNullOrEmpty(this.Ifid))
-                {
-                    ////System.Threading.ThreadPool.QueueUserWorkItem(state =>
-                    ////    {
-                    ////        var ifid = handler.GetStoryFileIfid();
-                    ////        if (string.IsNullOrEmpty(this.Ifid))
-                    ////        {
-                    ////            this.Ifid = ifid;
-                    ////        }
-                    ////    });
-                    //System.Threading.Tasks.Task.Factory.StartNew(() =>
-                    //    {
-                    //        var ifid = handler.GetStoryFileIfid();
-                    //        if (string.IsNullOrEmpty(this.Ifid))
-                    //        {
-                    //            this.Ifid = ifid;
-                    //        }
-                    //    });
-                    ////this.Ifid = handler.GetStoryFileIfid();
-                }
+                // Ideally, delay creating full cover image until we actually need it!
+                this.FullImage = this.ImageFromStream(model.CoverImageStream, 300, 300);
+                this.ThumbImage = this.ImageFromStream(model.CoverImageStream, 60, 60);
             }
         }
 
-        public BitmapImage ImageFromStream(Stream stream, int? width = null, int? height = null)
-        {
-            BitmapImage bmp = null;
-            if (stream != null)
-            {
-                bmp = new BitmapImage();
-                bmp.BeginInit();
-                bmp.StreamSource = stream;
-
-                if (width.HasValue)
-                {
-                    bmp.DecodePixelWidth = width.Value;
-                }
-
-                if (height.HasValue)
-                {
-                    bmp.DecodePixelHeight = height.Value;
-                }
-
-                bmp.EndInit();
-            }
-
-            return bmp;
-        }
-
-        private string ValueOrDefault(XNode node, string xpath, XmlNamespaceManager xmlns, string defaultValue)
-        {
-            var el = node.XPathSelectElement(xpath, xmlns);
-            if (el != null && !string.IsNullOrWhiteSpace(el.Value))
-            {
-                return el.Value;
-            }
-
-            return defaultValue;
-        }
-
+        // NOTE: property-change notifications may be overkill here, as the data can't
+        // be changed.  These could simply be get-only wrappers around the underlying
+        // data model, rather than having the overhead of the Set() call...
         private string path;
         public string Path
         {
@@ -184,7 +85,7 @@ namespace GameLibrary.ViewModels
             get { return this.bafn; }
             private set { this.Set(ref this.bafn, value); }
         }
-        
+
         // bibliographic
         private string title;
         public string Title
@@ -300,7 +201,23 @@ namespace GameLibrary.ViewModels
         private void Play()
         {
             // Launch it!
-            Process.Start(this.file.FullName);
+            Process.Start(this.model.FullPath);
+        }
+
+        private BitmapImage ImageFromStream(MemoryStream stream, int width, int height)
+        {
+            BitmapImage bmp = null;
+            if (stream != null)
+            {
+                bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.StreamSource = new MemoryStream(stream.GetBuffer());
+                bmp.DecodePixelWidth = width;
+                bmp.DecodePixelHeight = height;
+                bmp.EndInit();
+            }
+
+            return bmp;
         }
     }
 }
