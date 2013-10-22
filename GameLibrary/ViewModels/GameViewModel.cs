@@ -45,155 +45,61 @@ namespace GameLibrary.ViewModels
             this.Forgiveness = model.Forgiveness;
             this.Url = model.Url;
             this.AuthorEmail = model.AuthorEmail;
-
-            if (model.CoverImageStream != null)
-            {
-                // Ideally, delay creating full cover image until we actually need it!
-                this.FullImage = this.ImageFromStream(model.CoverImageStream, 300, 300);
-                this.ThumbImage = this.ImageFromStream(model.CoverImageStream, 60, 60);
-            }
         }
 
-        // NOTE: property-change notifications may be overkill here, as the data can't
-        // be changed.  These could simply be get-only wrappers around the underlying
-        // data model, rather than having the overhead of the Set() call...
-        private string path;
-        public string Path
-        {
-            get { return this.path; }
-            private set { this.Set(ref this.path, value); }
-        }
+        public string Path { get; private set; }
 
         // identification
-        private string ifid;
-        public string Ifid
-        {
-            get { return this.ifid; }
-            private set { this.Set(ref this.ifid, value); }
-        }
-
-        private string format;
-        public string Format
-        {
-            get { return this.format; }
-            private set { this.Set(ref this.format, value); }
-        }
-
-        private string bafn;
-        public string Bafn
-        {
-            get { return this.bafn; }
-            private set { this.Set(ref this.bafn, value); }
-        }
+        public string Ifid { get; private set; }
+        public string Format { get; private set; }
+        public string Bafn { get; private set; }
 
         // bibliographic
-        private string title;
-        public string Title
-        {
-            get { return this.title; }
-            private set { this.Set(ref this.title, value); }
-        }
-
-        private string author;
-        public string Author
-        {
-            get { return this.author; }
-            private set { this.Set(ref this.author, value); }
-        }
-
-        private string language;
-        public string Language
-        {
-            get { return this.language; }
-            private set { this.Set(ref this.language, value); }
-        }
-
-        private string headline;
-        public string Headline
-        {
-            get { return this.headline; }
-            private set { this.Set(ref this.headline, value); }
-        }
-
-        private string firstPublished;
-        public string FirstPublished
-        {
-            get { return this.firstPublished; }
-            private set { this.Set(ref this.firstPublished, value); }
-        }
-
-        private string genre;
-        public string Genre
-        {
-            get { return this.genre; }
-            private set { this.Set(ref this.genre, value); }
-        }
-
-        private string group;
-        public string Group
-        {
-            get { return this.group; }
-            private set { this.Set(ref this.group, value); }
-        }
-
-        private string description;
-        public string Description
-        {
-            get { return this.description; }
-            private set { this.Set(ref this.description, value); }
-        }
-
-        private string series;
-        public string Series
-        {
-            get { return this.series; }
-            private set { this.Set(ref this.series, value); }
-        }
-
-        private string seriesNumber;
-        public string SeriesNumber
-        {
-            get { return this.seriesNumber; }
-            private set { this.Set(ref this.seriesNumber, value); }
-        }
-
-        private string forgiveness;
-        public string Forgiveness
-        {
-            get { return this.forgiveness; }
-            private set { this.Set(ref this.forgiveness, value); }
-        }
+        public string Title { get; private set; }
+        public string Author { get; private set; }
+        public string Language { get; private set; }
+        public string Headline { get; private set; }
+        public string FirstPublished { get; private set; }
+        public string Genre { get; private set; }
+        public string Group { get; private set; }
+        public string Description { get; private set; }
+        public string Series { get; private set; }
+        public string SeriesNumber { get; private set; }
+        public string Forgiveness { get; private set; }
 
         //// resources/auxiliary not used...
 
         //contact
-        private string url;
-        public string Url
-        {
-            get { return this.url; }
-            private set { this.Set(ref this.url, value); }
-        }
-
-        private string authorEmail;
-        public string AuthorEmail
-        {
-            get { return this.authorEmail; }
-            private set { this.Set(ref this.authorEmail, value); }
-        }
+        public string Url { get; private set; }
+        public string AuthorEmail { get; private set; }
 
         // images
         private ImageSource fullImage;
         public ImageSource FullImage
         {
-            get { return this.fullImage; }
-            private set { this.Set(ref this.fullImage, value); }
+            get 
+            {
+                if (this.fullImage == null && this.model.CoverImageStream != null)
+                {
+                    this.fullImage = this.ImageFromStream(model.CoverImageStream, 300, 300);
+                }
+
+                return this.fullImage;
+            }
         }
 
         private ImageSource thumbImage;
         public ImageSource ThumbImage
         {
-            get { return this.thumbImage; }
-            private set { this.Set(ref this.thumbImage, value); }
+            get 
+            {
+                if (this.thumbImage == null && this.model.CoverImageStream != null)
+                {
+                    this.thumbImage = this.ImageFromStream(model.CoverImageStream, 60, 60);
+                }
+
+                return this.thumbImage;
+            }
         }
 
         public RelayCommand PlayCommand { get; private set; }
