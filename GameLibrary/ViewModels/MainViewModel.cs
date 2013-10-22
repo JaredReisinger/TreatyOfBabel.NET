@@ -48,13 +48,26 @@ namespace GameLibrary.ViewModels
 
             this.dataService = dataService;
 
-            this.PropertyChanged += MainViewModel_PropertyChanged;
+            if (!ViewModelBase.IsInDesignModeStatic)
+            {
+                this.PropertyChanged += MainViewModel_PropertyChanged;
 
-            // TODO: Add a persisted setting for the directory to enumerate.
-            // TODO: Use the user's document directory by default?
-            // For now, we use the "Samples" directory, because we know that
-            // we're in a development context. :)
-            this.RootPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\Samples"));
+                // TODO: Add a persisted setting for the directory to enumerate.
+                // TODO: Use the user's document directory by default?
+                // For now, we use the "Samples" directory, because we know that
+                // we're in a development context. :)
+                ////this.RootPath = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\Samples"));
+                this.RootPath = Path.Combine(
+                                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                                    @"SkyDrive\Documents\Interactive Fiction");
+            }
+            else
+            {
+                this.RootPath = Path.Combine(
+                                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                                    @"Documents\GitHub\TreatyOfBabel.NET\Samples");
+                this.dataService.GetGames(this.RootPath).Subscribe(this);
+            }
         }
 
         void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -126,6 +139,7 @@ namespace GameLibrary.ViewModels
 
         public void OnCompleted()
         {
+            this.GamesView.View.Refresh();
         }
 
         public void OnError(Exception ex)

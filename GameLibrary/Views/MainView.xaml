@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         SnapsToDevicePixels="True"
         Height="700"
-        Width="900"
+        Width="920"
         MinWidth="600"
         MinHeight="400"
         Title="Text Adventure Game Library"
@@ -90,30 +90,42 @@
             </ToolBar>
         </ToolBarTray>-->
 
-        <Grid DockPanel.Dock="Right" Width="300" DataContext="{Binding SelectedItem, ElementName=GameList}">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <TextBlock Text="Directory:"
+                   Padding="5"
+                   TextWrapping="Wrap" />
+            <TextBlock Text="{Binding RootPath}"
+                   Padding="5"
+                   FontWeight="DemiBold"
+                   TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Grid DockPanel.Dock="Right" Width="350" DataContext="{Binding SelectedItem, ElementName=GameList}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <ScrollViewer VerticalScrollBarVisibility="Visible">
-                <StackPanel Margin="10,0">
-                    <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
-                    <StackPanel Margin="0,0,0,20">
-                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding Headline}" FontSize="12" TextWrapping="Wrap" Visibility="{Binding Headline,Converter={StaticResource CollapsedWhenNull}}" />
-                        <TextBlock Text="{Binding Author}" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding Author,Converter={StaticResource CollapsedWhenNull}}" />
-                    </StackPanel>
-                    <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,20" Visibility="{Binding Description,Converter={StaticResource CollapsedWhenNull}}" />
-                    <StackPanel Margin="0,0,0,0">
-                        <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" Visibility="{Binding Genre,Converter={StaticResource CollapsedWhenNull}}" />
-                        <TextBlock Text="{Binding Ifid}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
-                    </StackPanel>
+            <StackPanel Grid.Row="0" Margin="10,0">
+                <Image Source="{Binding FullImage}" MaxHeight="300" MaxWidth="300" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="DemiBold" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Headline}" FontSize="12" TextWrapping="Wrap" Visibility="{Binding Headline,Converter={StaticResource CollapsedWhenNull}}" />
+                    <TextBlock Text="{Binding Author}" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding Author,Converter={StaticResource CollapsedWhenNull}}" />
                 </StackPanel>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="10,0">
+                <TextBlock Text="{Binding Description}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,20" Visibility="{Binding Description,Converter={StaticResource CollapsedWhenNull}}" />
             </ScrollViewer>
 
-            <StackPanel Grid.Row="1" Margin="0,10,0,0">
+            <StackPanel Grid.Row="2" Margin="10,10,10,0">
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Genre}" TextWrapping="Wrap" Visibility="{Binding Genre,Converter={StaticResource CollapsedWhenNull}}" />
+                    <TextBlock Text="{Binding Ifid}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Path}" FontSize="10" Foreground="Silver" TextWrapping="Wrap" />
+                </StackPanel>
                 <Button HorizontalAlignment="Center" Padding="30,5" Command="{Binding PlayCommand}">Play!</Button>
             </StackPanel>
         </Grid>
@@ -240,12 +252,19 @@
                     </GroupStyle.Panel>-->
                 </GroupStyle>
             </ListView.GroupStyle>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
                         <Style TargetType="GridViewColumnHeader">
                             <Setter Property="Command" Value="{Binding SortCommand}" />
                             <Setter Property="CommandParameter" Value="{Binding Content,RelativeSource={RelativeSource Self}}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                            <Setter Property="Padding" Value="6,4,6,4" />
                         </Style>
                     </GridView.ColumnHeaderContainerStyle>
                     <!--<GridView.ColumnHeaderTemplate>
@@ -257,19 +276,27 @@
                             </StackPanel>
                         </DataTemplate>
                     </GridView.ColumnHeaderTemplate>-->
-                    <GridViewColumn>
+                    <GridViewColumn Header="Title" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Border Grid.Column="0" Width="40" Height="40">
-                                    <Image Source="{Binding ThumbImage}" MaxHeight="40" MaxWidth="40" />
-                                </Border>
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="16" Height="16" Background="Silver">
+                                        <Image Source="{Binding ThumbImage}" Height="16" Width="16" />
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                                </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" Width="200" />
+                    <!--<GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Title" Width="200" />-->
                     <GridViewColumn DisplayMemberBinding="{Binding Author}" Header="Author" Width="150" />
                     <GridViewColumn DisplayMemberBinding="{Binding Genre}" Header="Genre" Width="100" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path}" Header="Path" Width="100" />
+                    <!--<GridViewColumn DisplayMemberBinding="{Binding Path}" Header="Path" Width="100" />-->
                 </GridView>
             </ListView.View>
             <!--<ListView.ItemTemplate>

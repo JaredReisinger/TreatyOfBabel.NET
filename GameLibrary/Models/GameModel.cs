@@ -71,7 +71,8 @@ namespace GameLibrary.Models
             IStoryFileHandler handler;
             if (helper.TryGetHandler(this.FullPath, out handler))
             {
-                this.Genre = string.Format("(Unknown {0})", handler.Provider.FormatName);
+                //this.Genre = string.Format("(Unknown {0})", handler.Provider.FormatName);
+                this.Genre = "Unknown Genre";
 
                 using (var metadataStream = handler.GetStoryFileMetadata())
                 {
