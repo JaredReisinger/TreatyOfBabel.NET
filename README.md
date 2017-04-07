@@ -1,4 +1,4 @@
-#TreatyOfBabel.NET
+# TreatyOfBabel.NET
 
 A .NET implementation of the [Treaty of Babel](http://babel.ifarchive.org)
 specification for text-adventure games.  Where the specification is very
@@ -6,7 +6,7 @@ C-like, however, this .NET version should feel a lot more natural for .NET
 developers: the different game format providers are discovered via MEF, and
 some of the APIs have been made more .NET friendly.
 
-###Other Tools
+### Other Tools
 
 In addition to the TreatyofBabel.dll utility library, there are two programs
 that use the library: IffDump and GameLibrary.  IffDump is a command-line tool
@@ -14,7 +14,7 @@ that reports the structure of an IFF file.  GameLibrary is a graphical
 front-end that shows the extracted information about each game under a
 directory (recursively).
 
-##Background
+## Background
 
 Growing up in the 1980s, I spent a lot of time playing
 [Infocom](http://en.wikipedia.org/wiki/Infocom) games like
@@ -24,7 +24,7 @@ It turns out I'm not the only person who continues to enjoy the medium
 of interactive ficton.  There's a sizable, and thriving, subculture of
 game authors, and many different kinds of games.
 
-###This seems cool... where can I find out more?
+### This seems cool... where can I find out more?
 
 Searching for "interactive fiction" in your favorite search engine is a
 good way to start.  [IFWiki](http://www.ifwiki.org/) is the Wikipedia of
@@ -37,7 +37,7 @@ that match your style of play, from adventure-style collect-the-treasure
 quests, to solve-the-puzzle games, to the more avant-garde explorations of
 the interactive fiction world.
 
-###How can I play a game?
+### How can I play a game?
 
 You'll need an interpreter that can handle the specific format of game you
 want to play.  The Game Library will simply ask Windows to open the game
